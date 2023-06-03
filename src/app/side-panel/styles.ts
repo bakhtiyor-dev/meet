@@ -47,7 +47,6 @@ export const panelStyles: Partial<IPanelStyles> = {
     scrollableContent: {
         display: 'flex',
         flexDirection: 'column',
-        // will use pivot body scroll
         height: '100%',
         overflow: 'hidden',
     },

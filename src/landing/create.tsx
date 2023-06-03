@@ -15,7 +15,6 @@ const CreateMeeting: FunctionComponent = () => {
     const [disabled, setDisabled] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    // no need for useCallback as set-state functions dont change
     const onError = () => {
         setDisabled(false)
         setError('Something went wrong, try again later (ˉ﹃ˉ)')
@@ -35,7 +34,6 @@ const CreateMeeting: FunctionComponent = () => {
                 },
             }
             socket.emit('create_room', room, ({ isError }: { isError: boolean }) => {
-                // on success it should redirect to main app via 'joined_room' event listened in src/index
                 if (isError) {
                     onError()
                 }

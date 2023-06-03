@@ -23,7 +23,6 @@ import useAbort from './utils/hooks/use-abort'
 
 window.process = process
 
-// enforce https in production
 if (window.location.protocol === 'http:' && process.env.NODE_ENV === 'production') {
     window.location.href = `https://${window.location.href.slice(7)}`
 }
@@ -43,10 +42,6 @@ const Eagle: FunctionComponent = () => {
     const onAbort = useAbort()
     const connectToast = useRef<ReactText>()
     useEffect(() => {
-        // TODO detect browser close to call this fucn
-        // const onCloseWindow = () => {
-        //     socket.emit('leave_room')
-        // }
         const onRoomJoined = (r: Room) => {
             const name = r.name || `by ${r.created_by}` || `with id ${r.id}`
             window.history.pushState({}, 'Meet', `/room/${r.id}`)
@@ -121,8 +116,4 @@ ReactDOM.render(
     document.getElementById('root'),
 )
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-// eslint-disable-next-line
 reportWebVitals(console.log)

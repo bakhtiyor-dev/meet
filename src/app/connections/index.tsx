@@ -23,7 +23,6 @@ const Connections: FunctionComponent = () => {
                 partnerName,
                 initiator: false,
             }
-            // setConnections(connections.concat(connection))
             addConnections([connection])
         },
         [addConnections],
@@ -48,7 +47,6 @@ const Connections: FunctionComponent = () => {
         ({ sessionId }) => {
             const conn = connections.find(c => c.partnerId === sessionId)
             if (conn) toast(`${conn?.partnerName} left the meeting`)
-            // setConnections(connections.filter(p => p.partnerId !== socketId))
             removeConnections(connections.filter(c => c.partnerId === sessionId))
         },
         [removeConnections, connections],

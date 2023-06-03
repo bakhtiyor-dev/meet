@@ -63,7 +63,6 @@ export const useUserMedia = (): UserMediaReturn => {
 
                 const stream = await navigator.mediaDevices.getUserMedia(config)
 
-                // extra step just to ensure single audio/video track is present
                 const audioTracks = stream.getAudioTracks()
                 const videoTracks = stream.getVideoTracks()
                 if (audioTracks.length > 0) {
@@ -83,7 +82,6 @@ export const useUserMedia = (): UserMediaReturn => {
                     })
                 }
 
-                // set device ids for ui
                 const audioDeviceId = audioTracks[0]?.getSettings?.()?.deviceId
                 const videoDeviceId = videoTracks[0]?.getSettings?.()?.deviceId
                 if (audioDeviceId) {
@@ -94,36 +92,30 @@ export const useUserMedia = (): UserMediaReturn => {
                 }
 
                 if (!userStream) {
-                    // save new stream as it is
                     setUserStream(stream)
                 } else {
                     const audioTrack = stream.getAudioTracks()[0]
                     const videoTrack = stream.getVideoTracks()[0]
                     if (audioTrack) {
-                        // remove prev audio track
                         userStream.getAudioTracks().forEach(t => {
                             t.stop()
                             userStream.removeTrack(t)
                         })
-                        // add prev video track, if any, to stream
                         const prevVideo = userStream.getVideoTracks()[0]
                         if (prevVideo) {
                             stream.addTrack(prevVideo)
                         }
                     }
                     if (videoTrack) {
-                        // remove prev video track
                         userStream.getVideoTracks().forEach(t => {
                             t.stop()
                             userStream.removeTrack(t)
                         })
-                        // add prev audio track, if any, to stream
                         const prevAudio = userStream.getAudioTracks()[0]
                         if (prevAudio) {
                             stream.addTrack(prevAudio)
                         }
                     }
-                    // save new stream
                     setUserStream(stream)
                 }
                 updateDeviceList()
@@ -144,14 +136,12 @@ export const useUserMedia = (): UserMediaReturn => {
 
             if (kind === 'audioinput') {
                 userStream.getAudioTracks().forEach(t => {
-                    // t.stop()
                     toStop.push(t)
                     userStream.removeTrack(t)
                 })
                 setCurrentMicId(null)
             } else if (kind === 'videoinput') {
                 userStream.getVideoTracks().forEach(t => {
-                    // t.stop()
                     toStop.push(t)
                     userStream.removeTrack(t)
                 })
@@ -161,10 +151,8 @@ export const useUserMedia = (): UserMediaReturn => {
             if (userStream?.getTracks().length === 0) {
                 setUserStream(null)
             } else {
-                // just to trigger rerender of whatever depends on this stream
                 const stream = userStream.clone()
                 userStream.getTracks().forEach(t => {
-                    // t.stop()
                     toStop.push(t)
                     userStream.removeTrack(t)
                 })
@@ -202,14 +190,13 @@ export const useDisplayMedia = (): DisplayMediaReturn => {
         } catch (err) {
             toast('Error stopping screen capture!', { type: ToastType.error })
             // eslint-disable-next-line no-console
-            console.error(err);
+            console.error(err)
         }
     }, [displayMedia, setDisplayMedia])
 
     const start = useCallback(async () => {
         try {
             if (isRemoteDisplay) throw Error('No multiple display streams allowed')
-            // BUG No Ts definition for getDisplayMedia
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const stream = await (navigator.mediaDevices as any).getDisplayMedia({
                 video: { cursor: 'always' },

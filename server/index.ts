@@ -5,7 +5,7 @@ import NodeCache from 'node-cache'
 
 const IO_OPTIONS = {
     cors: {
-        origin: JSON.parse(process.env.ALLOW_ORIGIN || "\"*\""),
+        origin: JSON.parse(process.env.ALLOW_ORIGIN || '"*"'),
         credentials: !!process.env.ALLOW_ORIGIN,
     },
 }
@@ -14,19 +14,15 @@ const httpServer = createServer()
 const io = new Server(httpServer, IO_OPTIONS)
 
 const roomsCache = new NodeCache({
-    /*
-     12 hours expiry. 
-     It is long enough to last for any meeting (too long) and shoudn't be needed normally, just for the case i fuck up somewhere
-    */
     stdTTL: 43200,
 })
 
 interface Room {
-    id: string // client version of Room may have id optional
+    id: string
     created_by?: string
     name?: string
     opts?: {
-        maxPeople?: string // will be int parsed when used
+        maxPeople?: string
     }
 }
 
@@ -40,13 +36,8 @@ io.on('connection', (socket: Socket) => {
     socket.on('register', ({ sessionId, roomId }: { sessionId: string; roomId?: string }) => {
         roomsCache.set<Person>(socket.id, { sessionId })
 
-        /**
-         socket joins room with same session id
-         This allows for extra layer above socket id so client just communicates with session id
-        */
         socket.join(sessionId)
 
-        // join rooms person is already in
         if (roomId) {
             socket.join(roomId)
             io.to(roomId).emit('person_reconnected', {
@@ -57,7 +48,6 @@ io.on('connection', (socket: Socket) => {
 
     socket.on('create_room', (room: Room, cb) => {
         try {
-            // TODO anonymous auth and/or rate limiting
             const roomId = nanoid()
             room.id = roomId
 
@@ -124,7 +114,6 @@ io.on('connection', (socket: Socket) => {
                     .allSockets()
                     .then(sockets => {
                         if (sockets.size === 0) {
-                            // room is now empty, clear the memory reference
                             roomsCache.del(room)
                         }
                     })
@@ -134,7 +123,6 @@ io.on('connection', (socket: Socket) => {
         }
     })
 
-    // Peer reports that the person left
     socket.on('person_left', ({ sessionId }: { sessionId: string }) => {
         try {
             io.to(sessionId).emit('leave_room')
@@ -152,11 +140,6 @@ io.on('connection', (socket: Socket) => {
         }
     })
 
-    /*
-    messages ('message' events) are send as is to other socket specified by `to` key in data 
-    `to` key is removed and `from` is added in delivered message\
-    both `to` and `from` are session ids
-    */
     socket.on('message', message => {
         const { to, ...msg } = message
         const { sessionId } = roomsCache.get<Person>(socket.id) || {}
@@ -187,19 +170,11 @@ const ID_REGEX = /^(?<id>[A-Za-z0-9_-]+$)/
 function getRoomFromLink(link: string): Room | undefined {
     let id: string | undefined
     try {
-        const url = new URL(link) // throws if url is invalid
-        /* This does not care about url host so any host is valid as long as that follows below pathname pattern
-           /room/<room_id>
-           room_id regex = ([A-Za-z0-9_-])+ (same as nanoid character set)
-        */
+        const url = new URL(link)
         id = url.pathname.match(PATH_REGEX)?.groups?.id
     } catch (error) {
-        // try link as id
         id = link.match(ID_REGEX)?.groups?.id
     }
-
-    // if (!id) throw Error('Cannot parse room id')
-    // if (!roomsCache.has(id)) throw Error('Room not found')
 
     return id !== undefined ? roomsCache.get(id) : undefined
 }

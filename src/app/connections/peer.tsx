@@ -85,10 +85,8 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
         const moozPeer: MoozPeer = { peer, partnerId }
         if (!window.moozPeers) window.moozPeers = [moozPeer]
 
-        // remove old copy
         window.moozPeers = window.moozPeers.filter(p => p.partnerId !== partnerId)
 
-        // update
         window.moozPeers.push(moozPeer)
     }
     saveInstance()
@@ -104,11 +102,8 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
                     })
                     setRemoteStreams(remoteStreams.filter(r => r.partnerId !== partnerId))
                 }
-                // if (data.metadata?.state === 'ONLY_DISPLAY') {
-
-                // }
             } catch (err) {
-                // consoel.err
+                console.log(err)
             }
         },
         [remoteStreams, setRemoteStreams, partnerId],
@@ -116,9 +111,7 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
 
     const onRemoteStream = useCallback(
         (stream: MediaStream, dontStopPrev?: boolean) => {
-            // console.log('onstream', dontStopPrev, stream.getTracks())
             const remoteStream = remoteStreamRef.current
-            // remove prev tracks
             if (!dontStopPrev) {
                 remoteStream.getTracks().forEach(t => {
                     if (t.kind === 'video') t.stop()
@@ -127,14 +120,12 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
             }
             const toAdd: RemoteStream[] = []
 
-            // check for display stream
             const videoTracks = stream.getVideoTracks()
             const displayTrack = videoTracks[1] as MediaStreamTrack | undefined // TODO 1?
 
             if (displayTrack) {
                 stream.removeTrack(displayTrack)
                 const rdStream = new MediaStream([displayTrack])
-                // if this track already exists in dispay stream, return
                 if (
                     remoteStreams.find(
                         rs =>
@@ -151,11 +142,10 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
                     )
                 )
                     return
-                // push new one
+
                 toAdd.push({ stream: rdStream, isDisplay: true, partnerId, partnerName })
             }
 
-            // add new tracks
             stream.getTracks().forEach(t => {
                 if (dontStopPrev && remoteStream.getTracks().find(rt => rt.id === t.id)) return
                 remoteStream.addTrack(t)
@@ -172,7 +162,6 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
         [addRemoteStreams, remoteStreams, partnerId, partnerName],
     )
 
-    // Just to make sure that every track is loaded
     const onTrack = useCallback(
         (track: MediaStreamTrack, stream: MediaStream) => {
             const pr = window.moozPeers?.find(p => p.partnerId === partnerId)?.peer as
@@ -181,11 +170,7 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
 
             const currStream = pr?._remoteStreams?.find(r => r.active)
             if (!currStream || currStream.id !== stream.id) return
-            // proceed only for tracks belonging to currently active stream
 
-            // let tr = currStream
-            //     .getTracks()
-            //     .filter(t => t.enabled && t.readyState === 'live')
             let tr =
                 pr?._remoteTracks
                     ?.filter(({ stream: s }) => s.id === currStream.id)
@@ -203,7 +188,6 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
                     ?.stream.getVideoTracks()[0],
             ].filter(Boolean) as MediaStreamTrack[]
 
-            // console.log({ tr, compTr })
             if (tr.length > compTr.length) {
                 const strm = new MediaStream(tr)
                 onRemoteStream(strm, true)
@@ -220,7 +204,7 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
                 try {
                     peer.signal(signal)
                 } catch (err) {
-                    // console.error(err)
+                    console.log(err)
                 }
             }
         }
@@ -300,7 +284,6 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
 
         const displayVideoTracks = displayStream?.getVideoTracks()
         const tracks = [...(userStream?.getTracks() || []), ...(displayVideoTracks || [])]
-        // hack so that the other end detects display stream
         if (displayVideoTracks?.length && !userStream?.getVideoTracks().length) {
             tracks.unshift(blankVideo())
         }
@@ -313,18 +296,17 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
                 peer.addStream(stream)
             }
         } catch (err) {
-            // console.error(err)
+            console.log(err)
         }
         return () => {
             try {
                 peer.removeStream(stream)
             } catch (err) {
-                // console.error(err)
+                console.log(err)
             }
         }
     }, [userStream, displayStream])
 
-    // send proposal to partner to join
     useEffect(() => {
         if (!opts.initiator) {
             socket.send({
@@ -335,7 +317,6 @@ const PeerComponent: FunctionComponent<PeerProps> = props => {
         }
     }, []) // eslint-disable-line
 
-    // destroy peer and remote stream when component exits
     useEffect(
         () => () => {
             peerRef.current?.destroy()

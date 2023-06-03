@@ -9,10 +9,6 @@ export const createSocket = (): Socket => {
         withCredentials: !!process.env.REACT_APP_SOCKET_URL,
     })
 
-    // socket.onAny((event, ...args) => {
-    //     console.log(`got ${event} with args:`, ...args)
-    // })
-
     return socket
 }
 
@@ -22,7 +18,7 @@ export const socketState = atom<Socket>({
 })
 
 export interface Room {
-    id?: string // server version of Room has id required, not here when filling details
+    id?: string
     created_by?: string
     name?: string
     opts?: {
@@ -30,7 +26,6 @@ export interface Room {
     }
 }
 
-// current room user is in, null maps to landing page
 export const roomState = atom<Room | null>({
     key: 'roomState',
     default: null,
@@ -71,22 +66,6 @@ export const addRemoteStreamsSelector = selector<RemoteStream[]>({
                     r.stream.getVideoTracks()[0].id === display?.stream.getVideoTracks()[0].id,
             )
         ) {
-            /* Now allowing multiple display streams, if they reach this point */
-
-            // remove other display tracks
-            // rStreams = rStreams.filter(({ isDisplay, stream }) => {
-            //     if (isDisplay) {
-            //         stream.getTracks().forEach(t => {
-            //             console.log('add remote, remove other displays, stopping track', t)
-            //             t.stop()
-            //             stream.removeTrack(t)
-            //         })
-            //         return false
-            //     }
-            //     return true
-            // })
-
-            // remove prev display tracks from this peer, if any
             rStreams = rStreams.filter(({ isDisplay, stream, partnerId }) => {
                 if (isDisplay && partnerId === display.partnerId) {
                     stream.getTracks().forEach(t => {
@@ -100,7 +79,6 @@ export const addRemoteStreamsSelector = selector<RemoteStream[]>({
             rStreams = rStreams.concat(display)
         }
         if (!display) {
-            // remove display streams from this peer
             rStreams = rStreams.filter(({ isDisplay, stream, partnerId }) => {
                 if (isDisplay && partnerId === user?.partnerId) {
                     stream.getTracks().forEach(t => {
@@ -129,7 +107,7 @@ export const connectionsState = atom<Connection[]>({
 
 export const addConnectionsSelector = selector<Connection[]>({
     key: 'addConnectionsSelector',
-    get: ({ get }) => get(connectionsState), // returns connectionsState as it is
+    get: ({ get }) => get(connectionsState),
     set: ({ get, set }, newVal) => {
         if (newVal instanceof DefaultValue) {
             throw Error('What were you thinking dude')
@@ -146,26 +124,23 @@ export const addConnectionsSelector = selector<Connection[]>({
 })
 export const removeConnectionsSelector = selector<Connection[]>({
     key: 'removeConnectionsSelector',
-    get: ({ get }) => get(connectionsState), // returns connectionsState as it is
+    get: ({ get }) => get(connectionsState),
     set: ({ get, set }, newVal) => {
         if (newVal instanceof DefaultValue) {
             throw Error('What were you thinking dude')
         }
-        // remove remote streams with remote ids as that of vals
         const remoteStreams = get(remoteStreamsState)
         set(
             remoteStreamsState,
             remoteStreams.filter(r => !newVal.find(v => v.partnerId === r.partnerId)),
         )
 
-        // set new connections with val ones removed
         const connections = get(connectionsState)
         set(
             connectionsState,
             connections.filter(c => !newVal.find(v => v.partnerId === c.partnerId)),
         )
 
-        // remove those peers
         if (window.moozPeers) {
             window.moozPeers = window.moozPeers.filter(
                 p => !newVal.find(v => v.partnerId === p.partnerId),

@@ -40,7 +40,7 @@ export const addMessageSelector = selector<Message[]>({
                             peer.send(JSON.stringify(data))
                         } catch (err) {
                             toast('Message could not be sent, try again', { type: ToastType.error })
-                            set(messagesState, messages) // undo adding newval
+                            set(messagesState, messages)
                         }
                     })
             }

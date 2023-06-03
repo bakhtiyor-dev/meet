@@ -70,7 +70,6 @@ const MyCommandBar: FunctionComponent<MyCommandBarProps> = ({
             disabled: mediaBtnsDisabled,
             buttonStyles,
             key: 'audioToggle',
-            // iconOnly: true,
             text: 'Audio',
             tooltipHostProps: {
                 content: 'Toggle audio',
@@ -112,7 +111,6 @@ const MyCommandBar: FunctionComponent<MyCommandBarProps> = ({
             disabled: mediaBtnsDisabled,
             buttonStyles,
             key: 'videoToggle',
-            // iconOnly: true,
             text: 'Video',
             tooltipHostProps: {
                 content: 'Toggle video',
@@ -138,7 +136,6 @@ const MyCommandBar: FunctionComponent<MyCommandBarProps> = ({
         {
             key: 'screen',
             text: 'Screen',
-            // iconOnly: true,
             disabled: displayMediaStatus !== 'on' && isRemoteDisplay,
             iconProps: {
                 iconName: 'ScreenCast',
@@ -162,7 +159,6 @@ const MyCommandBar: FunctionComponent<MyCommandBarProps> = ({
             onClick: onClickChat,
             buttonStyles,
             key: 'chat',
-            // iconOnly: true,
             text: 'Chat',
             iconProps: {
                 iconName: 'Chat',
@@ -241,8 +237,6 @@ const MyCommandBar: FunctionComponent<MyCommandBarProps> = ({
             buttonStyles,
             className: 'commandbar-info-button',
             key: 'info',
-            // text: 'Info',
-            // This needs an ariaLabel since it's icon-only
             ariaLabel: 'Info',
             iconOnly: true,
             iconProps: { iconName: 'Info' },

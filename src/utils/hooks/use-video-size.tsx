@@ -22,7 +22,6 @@ const useVideoSize = (N = 1, AR = 1): { x: number; y: number; X: number; Y: numb
 
     useEffect(() => {
         const listener = () => {
-            // on mobiles, dont listen to change
             if (isMobile) {
                 return
             }
@@ -30,7 +29,6 @@ const useVideoSize = (N = 1, AR = 1): { x: number; y: number; X: number; Y: numb
             const X = window.innerWidth
             setSize({ X, Y })
         }
-        // initial values
         const Y = window.innerHeight - TOP_BAR_HEIGHT
         const X = window.innerWidth
         setSize({ X, Y })
@@ -42,9 +40,6 @@ const useVideoSize = (N = 1, AR = 1): { x: number; y: number; X: number; Y: numb
 
     const { X = 500, Y = 800 } = size // bad defaults
     const { x, y } = getVideoBoxSize(X, Y, N, AR)
-
-    // x = isMobile ? X : x
-    // y = isMobile ? X / AR : y
 
     return { x, y, X, Y }
 }

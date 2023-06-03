@@ -7,10 +7,6 @@ import JoinMeeting from './join'
 import { container, containerInner, heading, mr4, options } from './styles'
 
 const pivotStyles: Partial<IPivotStyles> = {
-    root: {
-        // display: 'flex',
-        // justifyContent: 'center'
-    },
     itemContainer: {
         padding: '.5em',
         width: '300px',

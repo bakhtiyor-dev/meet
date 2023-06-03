@@ -30,12 +30,11 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({ panel, onDismiss, 
                 styles={panelStyles}
                 onRenderNavigationContent={onRenderNavigationContent}
                 isHiddenOnDismiss
-                // this prop makes the panel non-modal
                 isBlocking={false}
                 isOpen={!!panel}
                 onDismiss={onDismiss}
                 closeButtonAriaLabel="Close"
-                isFooterAtBottom // for gull height
+                isFooterAtBottom
             >
                 <Pivot
                     selectedKey={panel}

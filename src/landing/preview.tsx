@@ -28,7 +28,6 @@ const VideoPreview: FunctionComponent = () => {
                             else await stopUserMedia('audioinput')
                             setMediaBtnsDisabled(false)
                         }}
-                        // defaultChecked={!!currentMicId}
                         checked={!!currentMicId}
                         inlineLabel
                         label="Audio"
@@ -45,7 +44,6 @@ const VideoPreview: FunctionComponent = () => {
                             setMediaBtnsDisabled(false)
                         }}
                         checked={!!currentCameraId}
-                        // defaultChecked={!!currentCameraId}
                         inlineLabel
                         label="Video"
                         onText="On"
